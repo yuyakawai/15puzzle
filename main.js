@@ -75,130 +75,123 @@ const init = () => {
   cells[0].swapNumber();
 };
 
-const cells = Array.from({ length: cellRow * cellCol }).map((_, index) => ({
-  element: null,
-  number: index + 1,
-  isEmpty: false,
-  x: 0,
-  y: 0,
-  init() {
-    this.x = index % cellRow;
-    this.y = Math.trunc(index / cellRow);
-    this.element = document.createElement("div");
-    this.element.style.position = "absolute";
-    this.element.style.width = cellSize + "px";
-    this.element.style.height = cellSize + "px";
-    this.element.style.left = this.x * cellSize + "px";
-    this.element.style.top = this.y * cellSize + "px";
-    this.element.style.border = "3px ridge #cb986f";
-    this.element.style.backgroundColor = "#ccb28e";
-    this.element.style.boxSizing = "border-box";
-    this.element.style.fontSize = cellSize * 0.6 + "px";
-    this.element.style.display = "flex";
-    this.element.style.alignItems = "center";
-    this.element.style.justifyContent = "center";
-    this.element.style.cursor = "pointer";
-    if (this.number === cellRow * cellCol) {
-      this.number = "*";
-      this.element.style.backgroundColor = "black";
-      this.element.style.border = "none";
-      this.element.textContent = "";
-      this.isEmpty = true;
-    } else {
-      this.element.textContent = this.number;
-    }
+const cells = [...Array(cellRow * cellCol)].map((_, index) => {
+  return {
+    element: null,
+    number: index + 1,
+    isEmpty: false,
+    x: 0,
+    y: 0,
+    init: () => {
+      cells[index].x = index % cellRow;
+      cells[index].y = Math.trunc(index / cellRow);
+      cells[index].element = document.createElement("div");
+      cells[index].element.style.position = "absolute";
+      cells[index].element.style.width = cellSize + "px";
+      cells[index].element.style.height = cellSize + "px";
+      cells[index].element.style.left = cells[index].x * cellSize + "px";
+      cells[index].element.style.top = cells[index].y * cellSize + "px";
+      cells[index].element.style.border = "3px ridge #cb986f";
+      cells[index].element.style.backgroundColor = "#ccb28e";
+      cells[index].element.style.boxSizing = "border-box";
+      cells[index].element.style.fontSize = cellSize * 0.6 + "px";
+      cells[index].element.style.display = "flex";
+      cells[index].element.style.alignItems = "center";
+      cells[index].element.style.justifyContent = "center";
+      cells[index].element.style.cursor = "pointer";
+      cells[index].element.textContent = cells[index].number;
+      screenContainer.element.appendChild(cells[index].element);
 
-    screenContainer.element.appendChild(this.element);
+      const handleEvent = (selfObject) => {
+        return (e) => {
+          e.preventDefault();
+          if (gameStatus.isGameClear || gameStatus.isGameOver) {
+            return;
+          }
+          console.log(selfObject);
+          //selfObject.swapCell();
+        };
+      };
 
-    if (window.ontouchstart === null) {
-      this.element.ontouchstart = this.handleButtonDown(this);
-    } else {
-      this.element.onpointerdown = this.handleButtonDown(this);
-    }
-  },
-
-  getCell(x, y) {
-    return cells[y * cellRow + x];
-  },
-
-  update() {
-    //this.checkClear();
-
-    cells.forEach((cell) => {
-      cell.element.style.left = cell.x * cellSize + "px";
-      cell.element.style.top = cell.y * cellSize + "px";
-      cell.element.textContent = cell.number;
-    });
-  },
-
-  swapNumber() {
-    [...Array(1)].forEach(() => {
-      const prevIndex = Math.trunc(Math.random() * cells.length);
-      const nextIndex = Math.trunc(Math.random() * cells.length);
-
-      while (prevIndex === nextIndex) {
-        nextIndex = Math.trunc(Math.random() * cells.length);
+      if (window.ontouchstart === null) {
+        cells[index].element.ontouchstart = handleEvent(cells[index]);
+      } else {
+        cells[index].element.onpointerdown = handleEvent(cells[index]);
       }
+    },
 
-      [cells[prevIndex].number, cells[nextIndex].number] = [
-        cells[nextIndex].number,
-        cells[prevIndex].number,
-      ];
-    });
+    getCell: (x, y) => {
+      return cells[y * cellRow + x];
+    },
 
-    this.update();
-  },
+    update: () => {
+      cells.forEach((cell) => {
+        cell.element.style.left = cell.x * cellSize + "px";
+        cell.element.style.top = cell.y * cellSize + "px";
+        cell.element.textContent = cell.number;
+      });
+    },
 
-  swapCell() {
-    const directions = [
-      { x: 1, y: 0 },
-      { x: 0, y: 1 },
-      { x: -1, y: 0 },
-      { x: 0, y: -1 },
-    ];
+    swapNumber: () => {
+      [...Array(1)].forEach(() => {
+        const prevIndex = Math.trunc(Math.random() * cells.length);
+        const nextIndex = Math.trunc(Math.random() * cells.length);
 
-    const prevCell = this.getCell(this.x, this.y);
-    const nextCell = directions
-      .map((direction) => {
-        if (
-          this.getCell(this.x + direction.x, this.y + direction.y) !==
-            undefined &&
-          this.getCell(this.x + direction.x, this.y + direction.y).isEmpty
-        ) {
-          return this.getCell(this.x + direction.x, this.y + direction.y);
+        while (prevIndex === nextIndex) {
+          nextIndex = Math.trunc(Math.random() * cells.length);
         }
-      })
-      .filter((cell) => cell !== undefined)[0];
 
-    console.log(nextCell);
-    if (nextCell === undefined) {
-      return;
-    }
+        [cells[prevIndex].number, cells[nextIndex].number] = [
+          cells[nextIndex].number,
+          cells[prevIndex].number,
+        ];
+      });
+    },
 
-    [prevCell.x, nextCell.x] = [nextCell.x, prevCell.x];
-    [prevCell.y, nextCell.y] = [nextCell.y, prevCell.y];
-    [prevCell.isEmpty, nextCell.isEmpty] = [nextCell.isEmpty, prevCell.isEmpty];
+    swapCell: () => {
+      const directions = [
+        { x: 1, y: 0 },
+        { x: 0, y: 1 },
+        { x: -1, y: 0 },
+        { x: 0, y: -1 },
+      ];
 
-    this.update();
-  },
+      const prevCell = this.getCell(this.x, this.y);
+      const nextCell = directions
+        .map((direction) => {
+          if (
+            this.getCell(this.x + direction.x, this.y + direction.y) !==
+              undefined &&
+            this.getCell(this.x + direction.x, this.y + direction.y).isEmpty
+          ) {
+            return this.getCell(this.x + direction.x, this.y + direction.y);
+          }
+        })
+        .filter((cell) => cell !== undefined)[0];
 
-  checkClear() {
-    if (cells.every((cell) => cell.number === cell.x + cell.y * cellRow + 1)) {
-      gameStatus.isGameClear = true;
-      showGameClearMessage();
-    }
-  },
-
-  handleButtonDown(selfObject) {
-    return (e) => {
-      e.preventDefault();
-      if (gameStatus.isGameClear || gameStatus.isGameOver) {
+      console.log(nextCell);
+      if (nextCell === undefined) {
         return;
       }
-      selfObject.swapCell();
-    };
-  },
-}));
+
+      [prevCell.x, nextCell.x] = [nextCell.x, prevCell.x];
+      [prevCell.y, nextCell.y] = [nextCell.y, prevCell.y];
+      [prevCell.isEmpty, nextCell.isEmpty] = [
+        nextCell.isEmpty,
+        prevCell.isEmpty,
+      ];
+    },
+
+    checkClear: () => {
+      if (
+        cells.every((cell) => cell.number === cell.x + cell.y * cellRow + 1)
+      ) {
+        gameStatus.isGameClear = true;
+        showGameClearMessage();
+      }
+    },
+  };
+});
 
 const showGameClearMessage = () => {
   let messageElement = document.createElement("div");
