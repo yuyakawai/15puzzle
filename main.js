@@ -108,7 +108,6 @@ const cells = [...Array(cellRow * cellCol)].map((_, index) => {
           if (gameStatus.isGameClear || gameStatus.isGameOver) {
             return;
           }
-          console.log(selfObject);
           //selfObject.swapCell();
         };
       };
@@ -134,8 +133,8 @@ const cells = [...Array(cellRow * cellCol)].map((_, index) => {
 
     swapNumber: () => {
       [...Array(1)].forEach(() => {
-        const prevIndex = Math.trunc(Math.random() * cells.length);
-        const nextIndex = Math.trunc(Math.random() * cells.length);
+        let prevIndex = Math.trunc(Math.random() * cells.length);
+        let nextIndex = Math.trunc(Math.random() * cells.length);
 
         while (prevIndex === nextIndex) {
           nextIndex = Math.trunc(Math.random() * cells.length);
@@ -146,6 +145,8 @@ const cells = [...Array(cellRow * cellCol)].map((_, index) => {
           cells[prevIndex].number,
         ];
       });
+
+      cells[0].update();
     },
 
     swapCell: () => {
