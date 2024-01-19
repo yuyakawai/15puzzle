@@ -102,13 +102,21 @@ const cells = [...Array(cellRow * cellCol)].map((_, index) => {
       cells[index].element.textContent = cells[index].number;
       screenContainer.element.appendChild(cells[index].element);
 
+      if (index === cells.length - 1) {
+        cells[index].isEmpty = true;
+        cells[index].element.style.backgroundColor = "black";
+        cells[index].element.style.color = "white";
+        cells[index].element.style.border = "none";
+        return;
+      }
+
       const handleEvent = (selfObject) => {
         return (e) => {
           e.preventDefault();
           if (gameStatus.isGameClear || gameStatus.isGameOver) {
             return;
           }
-          //selfObject.swapCell();
+          selfObject.swapCell(selfObject);
         };
       };
 
@@ -132,12 +140,12 @@ const cells = [...Array(cellRow * cellCol)].map((_, index) => {
     },
 
     swapNumber: () => {
-      [...Array(1)].forEach(() => {
-        let prevIndex = Math.trunc(Math.random() * cells.length);
-        let nextIndex = Math.trunc(Math.random() * cells.length);
+      [...Array(10)].forEach(() => {
+        let prevIndex = Math.trunc(Math.random() * (cells.length - 1));
+        let nextIndex = Math.trunc(Math.random() * (cells.length - 1));
 
         while (prevIndex === nextIndex) {
-          nextIndex = Math.trunc(Math.random() * cells.length);
+          nextIndex = Math.trunc(Math.random() * (cells.length - 1));
         }
 
         [cells[prevIndex].number, cells[nextIndex].number] = [
@@ -149,7 +157,7 @@ const cells = [...Array(cellRow * cellCol)].map((_, index) => {
       cells[0].update();
     },
 
-    swapCell: () => {
+    swapCell: (selfObject) => {
       const directions = [
         { x: 1, y: 0 },
         { x: 0, y: 1 },
@@ -157,30 +165,44 @@ const cells = [...Array(cellRow * cellCol)].map((_, index) => {
         { x: 0, y: -1 },
       ];
 
-      const prevCell = this.getCell(this.x, this.y);
-      const nextCell = directions
+      let prevCell = selfObject;
+
+      let nextCell = directions
         .map((direction) => {
           if (
-            this.getCell(this.x + direction.x, this.y + direction.y) !==
-              undefined &&
-            this.getCell(this.x + direction.x, this.y + direction.y).isEmpty
+            cells[
+              selfObject.x +
+                direction.x +
+                (selfObject.y + direction.y) * cellRow
+            ] !== undefined &&
+            cells[
+              selfObject.x +
+                direction.x +
+                (selfObject.y + direction.y) * cellRow
+            ].isEmpty
           ) {
-            return this.getCell(this.x + direction.x, this.y + direction.y);
+            return cells[
+              selfObject.x +
+                direction.x +
+                (selfObject.y + direction.y) * cellRow
+            ];
           }
         })
         .filter((cell) => cell !== undefined)[0];
-
       console.log(nextCell);
       if (nextCell === undefined) {
         return;
       }
 
-      [prevCell.x, nextCell.x] = [nextCell.x, prevCell.x];
-      [prevCell.y, nextCell.y] = [nextCell.y, prevCell.y];
-      [prevCell.isEmpty, nextCell.isEmpty] = [
-        nextCell.isEmpty,
-        prevCell.isEmpty,
-      ];
+      [prevCell, nextCell] = [nextCell, prevCell];
+      //[prevCell.x, nextCell.x] = [nextCell.x, prevCell.x];
+      //[prevCell.y, nextCell.y] = [nextCell.y, prevCell.y];
+      //[prevCell.isEmpty, nextCell.isEmpty] = [
+      //  nextCell.isEmpty,
+      //  prevCell.isEmpty,
+      //];
+
+      cells[0].update();
     },
 
     checkClear: () => {
