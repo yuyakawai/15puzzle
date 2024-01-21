@@ -140,22 +140,13 @@ const cells = [...Array(cellRow * cellCol)].map((_, index) => {
           cell.element.textContent = cell.number;
         }
       });
-      console.log(cells);
     },
 
     swapNumber: () => {
-      [...Array(10)].forEach(() => {
-        let prevIndex = Math.trunc(Math.random() * (cells.length - 1));
-        let nextIndex = Math.trunc(Math.random() * (cells.length - 1));
-
-        while (prevIndex === nextIndex) {
-          nextIndex = Math.trunc(Math.random() * (cells.length - 1));
-        }
-
-        [cells[prevIndex].number, cells[nextIndex].number] = [
-          cells[nextIndex].number,
-          cells[prevIndex].number,
-        ];
+      [...Array(10000)].forEach(() => {
+        cells[0].swapCell(
+          cells[Math.trunc(Math.random() * (cells.length - 1))]
+        );
       });
 
       cells[0].update();
