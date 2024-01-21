@@ -1,4 +1,4 @@
-const initialRemainingTime = 36000;
+const initialRemainingTime = 360;
 const cellSize = 70;
 const cellRow = 4;
 const cellCol = 4;
@@ -72,6 +72,7 @@ const init = () => {
   mainContainer.element.appendChild(timeMessageContainer.element);
 
   cells.forEach((cell) => cell.init());
+  cells[0].update();
   cells[0].swapNumber();
 };
 
@@ -104,9 +105,6 @@ const cells = [...Array(cellRow * cellCol)].map((_, index) => {
 
       if (index === cells.length - 1) {
         cells[index].isEmpty = true;
-        cells[index].element.style.backgroundColor = "black";
-        cells[index].element.style.border = "none";
-        cells[index].element.textContent = "";
       }
 
       const handleEvent = (selfObject) => {
@@ -135,8 +133,6 @@ const cells = [...Array(cellRow * cellCol)].map((_, index) => {
         } else {
           cell.element.style.border = "3px ridge #cb986f";
           cell.element.style.backgroundColor = "#ccb28e";
-          cell.element.style.left = cell.x * cellSize + "px";
-          cell.element.style.top = cell.y * cellSize + "px";
           cell.element.textContent = cell.number;
         }
       });
@@ -147,6 +143,11 @@ const cells = [...Array(cellRow * cellCol)].map((_, index) => {
         cells[0].swapCell(
           cells[Math.trunc(Math.random() * (cells.length - 1))]
         );
+
+        let num = Math.trunc(Math.random() * (cells.length - 1));
+        if (num >= 16) {
+          console.log(num);
+        }
       });
 
       cells[0].update();
@@ -183,7 +184,7 @@ const cells = [...Array(cellRow * cellCol)].map((_, index) => {
             ];
           }
         })
-        .filter((cell) => cell !== undefined)[0];
+        .find((cell) => cell !== undefined);
       if (nextCell === undefined) {
         return;
       }
@@ -195,19 +196,17 @@ const cells = [...Array(cellRow * cellCol)].map((_, index) => {
       ];
 
       cells[0].update();
-      cells[0].checkClear();
-    },
-
-    checkClear: () => {
-      if (
-        cells.every((cell) => cell.number === cell.x + cell.y * cellRow + 1)
-      ) {
-        gameStatus.isGameClear = true;
-        showGameClearMessage();
-      }
+      checkClear();
     },
   };
 });
+
+const checkClear = () => {
+  if (cells.every((cell) => cell.number === cell.x + cell.y * cellRow + 1)) {
+    gameStatus.isGameClear = true;
+    showGameClearMessage();
+  }
+};
 
 const showGameClearMessage = () => {
   let messageElement = document.createElement("div");
