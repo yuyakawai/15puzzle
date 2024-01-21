@@ -92,7 +92,7 @@ const init = () => {
 
   cells.forEach((cell) => cell.init());
   controller.init();
-  cells[0].update();
+  updateCell();
 };
 
 const controller = {
@@ -198,7 +198,7 @@ const cells = [...Array(cellRow * cellCol)].map((_, index) => {
           ) {
             return;
           }
-          selfObject.swapCell(selfObject);
+          swapCell(selfObject);
         };
       };
 
@@ -208,82 +208,66 @@ const cells = [...Array(cellRow * cellCol)].map((_, index) => {
         cells[index].element.onpointerdown = handleEvent(cells[index]);
       }
     },
-
-    update: () => {
-      cells.forEach((cell) => {
-        if (cell.isEmpty) {
-          cell.element.style.backgroundColor = "black";
-          cell.element.style.border = "none";
-          cell.element.textContent = "";
-        } else {
-          cell.element.style.border = "3px ridge #cb986f";
-          cell.element.style.backgroundColor = "#ccb28e";
-          cell.element.textContent = cell.number;
-        }
-      });
-    },
-
-    swapNumber: () => {
-      [...Array(cellSwapCount)].forEach(() => {
-        cells[0].swapCell(
-          cells[Math.trunc(Math.random() * (cells.length - 1))]
-        );
-      });
-
-      cells[0].update();
-    },
-
-    swapCell: (selfObject) => {
-      const directions = [
-        { x: 1, y: 0 },
-        { x: 0, y: 1 },
-        { x: -1, y: 0 },
-        { x: 0, y: -1 },
-      ];
-
-      let prevCell = selfObject;
-
-      let nextCell = directions
-        .map((direction) => {
-          if (
-            selfObject.x + direction.x < 0 ||
-            selfObject.x + direction.x >= cellRow ||
-            selfObject.y + direction.y < 0 ||
-            selfObject.y + direction.y >= cellCol
-          ) {
-            return undefined;
-          }
-          let targetCell =
-            cells[
-              selfObject.x +
-                direction.x +
-                (selfObject.y + direction.y) * cellRow
-            ];
-          if (targetCell !== undefined && targetCell.isEmpty) {
-            return targetCell;
-          }
-        })
-        .find((cell) => cell !== undefined);
-      if (nextCell === undefined) {
-        return;
-      }
-
-      [prevCell.number, nextCell.number] = [nextCell.number, prevCell.number];
-      [prevCell.isEmpty, nextCell.isEmpty] = [
-        nextCell.isEmpty,
-        prevCell.isEmpty,
-      ];
-
-      cells[0].update();
-      checkClear();
-    },
   };
 });
+
+const updateCell = () => {
+  cells.forEach((cell) => {
+    if (cell.isEmpty) {
+      cell.element.style.backgroundColor = "black";
+      cell.element.style.border = "none";
+      cell.element.textContent = "";
+    } else {
+      cell.element.style.border = "3px ridge #cb986f";
+      cell.element.style.backgroundColor = "#ccb28e";
+      cell.element.textContent = cell.number;
+    }
+  });
+};
+
+const swapCell = (selfCell) => {
+  const directions = [
+    { x: 1, y: 0 },
+    { x: 0, y: 1 },
+    { x: -1, y: 0 },
+    { x: 0, y: -1 },
+  ];
+
+  let nextCell = directions
+    .map((direction) => {
+      if (
+        selfCell.x + direction.x < 0 ||
+        selfCell.x + direction.x >= cellRow ||
+        selfCell.y + direction.y < 0 ||
+        selfCell.y + direction.y >= cellCol
+      ) {
+        return undefined;
+      }
+      let targetCell =
+        cells[selfCell.x + direction.x + (selfCell.y + direction.y) * cellRow];
+      if (targetCell !== undefined && targetCell.isEmpty) {
+        return targetCell;
+      }
+    })
+    .find((cell) => cell !== undefined);
+  if (nextCell === undefined) {
+    return;
+  }
+
+  [selfCell.number, nextCell.number] = [nextCell.number, selfCell.number];
+  [selfCell.isEmpty, nextCell.isEmpty] = [nextCell.isEmpty, selfCell.isEmpty];
+
+  updateCell();
+  checkClear();
+};
 
 const resetGame = () => {
   gameStatus.startTime = performance.now();
   gameStatus.remainingTime = initialRemainingTime;
-  cells[0].swapNumber();
+  [...Array(cellSwapCount)].forEach(() => {
+    swapCell(cells[Math.trunc(Math.random() * (cells.length - 1))]);
+  });
+
   if (gameStatus.isGameOver || gameStatus.isGameClear) {
     gameStatus.isGameOver = false;
     gameStatus.isGameClear = false;
