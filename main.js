@@ -2,6 +2,7 @@ const initialRemainingTime = 36000;
 const cellSize = 70;
 const cellRow = 4;
 const cellCol = 4;
+const cellSwapCount = 1000;
 
 const gameStatus = {
   isGameStart: true,
@@ -138,8 +139,8 @@ const cells = [...Array(cellRow * cellCol)].map((_, index) => {
       });
     },
 
-    swapNumber: async () => {
-      [...Array(1000)].forEach(async () => {
+    swapNumber: () => {
+      [...Array(cellSwapCount)].forEach(() => {
         cells[0].swapCell(
           cells[Math.trunc(Math.random() * (cells.length - 1))]
         );
