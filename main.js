@@ -1,4 +1,4 @@
-const initialRemainingTime = 360;
+const initialRemainingTime = 36000;
 const cellSize = 70;
 const cellRow = 4;
 const cellCol = 4;
@@ -138,17 +138,17 @@ const cells = [...Array(cellRow * cellCol)].map((_, index) => {
       });
     },
 
-    swapNumber: () => {
-      [...Array(10000)].forEach(() => {
-        cells[0].swapCell(
-          cells[Math.trunc(Math.random() * (cells.length - 1))]
-        );
+    swapNumber: async () => {
+      // [...Array(100)].forEach(async () => {
+      for (i = 0; i < 100; i++) {
+        const wait = async (ms) =>
+          new Promise((resolve) => setTimeout(resolve, ms));
+        await wait(500);
 
-        let num = Math.trunc(Math.random() * (cells.length - 1));
-        if (num >= 16) {
-          console.log(num);
-        }
-      });
+        let i = Math.trunc(Math.random() * (cells.length - 1));
+        cells[0].swapCell(cells[i]);
+        cells[0].update();
+      }
 
       cells[0].update();
     },
@@ -186,7 +186,7 @@ const cells = [...Array(cellRow * cellCol)].map((_, index) => {
         })
         .find((cell) => cell !== undefined);
       if (nextCell === undefined) {
-        return;
+        return false;
       }
 
       [prevCell.number, nextCell.number] = [nextCell.number, prevCell.number];
@@ -197,6 +197,8 @@ const cells = [...Array(cellRow * cellCol)].map((_, index) => {
 
       cells[0].update();
       checkClear();
+
+      return true;
     },
   };
 });
