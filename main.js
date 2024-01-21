@@ -1,4 +1,4 @@
-const initialRemainingTime = 360;
+const initialRemainingTime = 600;
 const cellSize = 70;
 const cellRow = 4;
 const cellCol = 4;
