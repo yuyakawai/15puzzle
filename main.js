@@ -139,16 +139,11 @@ const cells = [...Array(cellRow * cellCol)].map((_, index) => {
     },
 
     swapNumber: async () => {
-      // [...Array(100)].forEach(async () => {
-      for (i = 0; i < 100; i++) {
-        const wait = async (ms) =>
-          new Promise((resolve) => setTimeout(resolve, ms));
-        await wait(500);
-
-        let i = Math.trunc(Math.random() * (cells.length - 1));
-        cells[0].swapCell(cells[i]);
-        cells[0].update();
-      }
+      [...Array(1000)].forEach(async () => {
+        cells[0].swapCell(
+          cells[Math.trunc(Math.random() * (cells.length - 1))]
+        );
+      });
 
       cells[0].update();
     },
@@ -166,22 +161,21 @@ const cells = [...Array(cellRow * cellCol)].map((_, index) => {
       let nextCell = directions
         .map((direction) => {
           if (
-            cells[
-              selfObject.x +
-                direction.x +
-                (selfObject.y + direction.y) * cellRow
-            ] !== undefined &&
-            cells[
-              selfObject.x +
-                direction.x +
-                (selfObject.y + direction.y) * cellRow
-            ].isEmpty
+            selfObject.x + direction.x < 0 ||
+            selfObject.x + direction.x >= cellRow ||
+            selfObject.y + direction.y < 0 ||
+            selfObject.y + direction.y >= cellCol
           ) {
-            return cells[
+            return undefined;
+          }
+          let targetCell =
+            cells[
               selfObject.x +
                 direction.x +
                 (selfObject.y + direction.y) * cellRow
             ];
+          if (targetCell !== undefined && targetCell.isEmpty) {
+            return targetCell;
           }
         })
         .find((cell) => cell !== undefined);
