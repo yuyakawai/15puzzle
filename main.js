@@ -1,4 +1,4 @@
-const initialRemainingTime = 600;
+const initialRemainingTime = 360;
 const cellSize = 70;
 const cellRow = 4;
 const cellCol = 4;
@@ -124,8 +124,8 @@ const controller = {
 
     const handleButtonUp = (e) => {
       e.preventDefault();
-      resetGame();
       gameStatus.isGameStart = true;
+      resetGame();
       buttonElement.textContent = "リセット";
       controller.changeStatus(!controller.button.isPressed);
     };
@@ -282,7 +282,14 @@ const cells = [...Array(cellRow * cellCol)].map((_, index) => {
 
 const resetGame = () => {
   gameStatus.startTime = performance.now();
+  gameStatus.remainingTime = initialRemainingTime;
   cells[0].swapNumber();
+  if (gameStatus.isGameOver || gameStatus.isGameClear) {
+    gameStatus.isGameOver = false;
+    gameStatus.isGameClear = false;
+    screenContainer.element.removeChild(screenContainer.element.lastChild);
+    requestAnimationFrame(tick);
+  }
 };
 
 const checkClear = () => {
