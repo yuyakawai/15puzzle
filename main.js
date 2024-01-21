@@ -1,4 +1,4 @@
-const initialRemainingTime = 360;
+const initialRemainingTime = 36000;
 const cellSize = 70;
 const cellRow = 4;
 const cellCol = 4;
@@ -105,9 +105,8 @@ const cells = [...Array(cellRow * cellCol)].map((_, index) => {
       if (index === cells.length - 1) {
         cells[index].isEmpty = true;
         cells[index].element.style.backgroundColor = "black";
-        cells[index].element.style.color = "white";
         cells[index].element.style.border = "none";
-        return;
+        cells[index].element.textContent = "";
       }
 
       const handleEvent = (selfObject) => {
@@ -127,16 +126,21 @@ const cells = [...Array(cellRow * cellCol)].map((_, index) => {
       }
     },
 
-    getCell: (x, y) => {
-      return cells[y * cellRow + x];
-    },
-
     update: () => {
       cells.forEach((cell) => {
-        cell.element.style.left = cell.x * cellSize + "px";
-        cell.element.style.top = cell.y * cellSize + "px";
-        cell.element.textContent = cell.number;
+        if (cell.isEmpty) {
+          cell.element.style.backgroundColor = "black";
+          cell.element.style.border = "none";
+          cell.element.textContent = "";
+        } else {
+          cell.element.style.border = "3px ridge #cb986f";
+          cell.element.style.backgroundColor = "#ccb28e";
+          cell.element.style.left = cell.x * cellSize + "px";
+          cell.element.style.top = cell.y * cellSize + "px";
+          cell.element.textContent = cell.number;
+        }
       });
+      console.log(cells);
     },
 
     swapNumber: () => {
@@ -189,20 +193,18 @@ const cells = [...Array(cellRow * cellCol)].map((_, index) => {
           }
         })
         .filter((cell) => cell !== undefined)[0];
-      console.log(nextCell);
       if (nextCell === undefined) {
         return;
       }
 
-      [prevCell, nextCell] = [nextCell, prevCell];
-      //[prevCell.x, nextCell.x] = [nextCell.x, prevCell.x];
-      //[prevCell.y, nextCell.y] = [nextCell.y, prevCell.y];
-      //[prevCell.isEmpty, nextCell.isEmpty] = [
-      //  nextCell.isEmpty,
-      //  prevCell.isEmpty,
-      //];
+      [prevCell.number, nextCell.number] = [nextCell.number, prevCell.number];
+      [prevCell.isEmpty, nextCell.isEmpty] = [
+        nextCell.isEmpty,
+        prevCell.isEmpty,
+      ];
 
       cells[0].update();
+      cells[0].checkClear();
     },
 
     checkClear: () => {
