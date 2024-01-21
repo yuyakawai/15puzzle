@@ -5,7 +5,7 @@ const cellCol = 4;
 const cellSwapCount = 1000;
 
 const gameStatus = {
-  isGameStart: true,
+  isGameStart: false,
   isGameClear: false,
   isGameOver: false,
   startTime: 0,
@@ -28,6 +28,12 @@ const timeMessageContainer = {
   element: null,
   width: screenContainer.width,
   height: screenContainer.height * 0.1,
+};
+
+const controllerContainer = {
+  element: null,
+  width: screenContainer.width,
+  height: mainContainer.height * 0.15,
 };
 
 const init = () => {
@@ -72,9 +78,84 @@ const init = () => {
     "⌛ " + initialRemainingTime.toFixed(2);
   mainContainer.element.appendChild(timeMessageContainer.element);
 
+  controllerContainer.element = document.createElement("div");
+  controllerContainer.element.style.position = "relative";
+  controllerContainer.element.style.width = controllerContainer.width + "px";
+  controllerContainer.element.style.height = controllerContainer.height + "px";
+  controllerContainer.element.style.margin = "0px";
+  controllerContainer.element.style.fontSize = "32px";
+  controllerContainer.element.style.boxSizing = "border-box";
+  controllerContainer.element.style.display = "flex";
+  controllerContainer.element.style.alignItems = "center";
+  controllerContainer.element.style.justifyContent = "center";
+  mainContainer.element.appendChild(controllerContainer.element);
+
   cells.forEach((cell) => cell.init());
+  controller.init();
   cells[0].update();
-  cells[0].swapNumber();
+};
+
+const controller = {
+  button: { element: null, isPressed: false },
+
+  init: () => {
+    let buttonElement = document.createElement("div");
+    buttonElement.style.position = "relative";
+    buttonElement.style.width = controllerContainer.width * 0.5 + "px";
+    buttonElement.style.height = controllerContainer.height * 0.6 + "px";
+    buttonElement.style.margin = "15px";
+    buttonElement.style.fontSize = controllerContainer.width * 0.08 + "px";
+    buttonElement.style.backgroundColor = "orange";
+    buttonElement.style.borderBottom = "5px solid #b84c00";
+    buttonElement.style.borderRadius = "7px";
+    buttonElement.style.boxSizing = "border-box";
+    buttonElement.style.cursor = "pointer";
+    buttonElement.style.display = "flex";
+    buttonElement.style.alignItems = "center";
+    buttonElement.style.justifyContent = "center";
+    buttonElement.textContent = "スタート";
+    controller.button.element = buttonElement;
+    controllerContainer.element.appendChild(buttonElement);
+
+    const handleButtonDown = (e) => {
+      e.preventDefault();
+      controller.changeStatus(!controller.button.isPressed);
+    };
+
+    const handleButtonUp = (e) => {
+      e.preventDefault();
+      cells[0].swapNumber();
+      resetGameStatus();
+      gameStatus.isGameStart = true;
+      buttonElement.textContent = "リセット";
+      controller.changeStatus(!controller.button.isPressed);
+    };
+
+    if (window.ontouchstart === null) {
+      buttonElement.ontouchstart = handleButtonDown;
+      buttonElement.ontouchend = handleButtonUp;
+    } else {
+      buttonElement.onpointerdown = handleButtonDown;
+      buttonElement.onpointerup = handleButtonUp;
+    }
+
+    controller.update();
+  },
+
+  changeStatus: (isPressed) => {
+    controller.button.isPressed = isPressed;
+    controller.update();
+  },
+
+  update: () => {
+    if (controller.button.isPressed) {
+      controller.button.element.style.borderBottom = "1px solid #b84c00";
+      controller.button.element.style.backgroundColor = "#b84c00";
+    } else {
+      controller.button.element.style.borderBottom = "5px solid #b84c00";
+      controller.button.element.style.backgroundColor = "orange";
+    }
+  },
 };
 
 const cells = [...Array(cellRow * cellCol)].map((_, index) => {
@@ -111,7 +192,11 @@ const cells = [...Array(cellRow * cellCol)].map((_, index) => {
       const handleEvent = (selfObject) => {
         return (e) => {
           e.preventDefault();
-          if (gameStatus.isGameClear || gameStatus.isGameOver) {
+          if (
+            gameStatus.isGameStart === false ||
+            gameStatus.isGameClear ||
+            gameStatus.isGameOver
+          ) {
             return;
           }
           selfObject.swapCell(selfObject);
@@ -181,7 +266,7 @@ const cells = [...Array(cellRow * cellCol)].map((_, index) => {
         })
         .find((cell) => cell !== undefined);
       if (nextCell === undefined) {
-        return false;
+        return;
       }
 
       [prevCell.number, nextCell.number] = [nextCell.number, prevCell.number];
@@ -192,11 +277,13 @@ const cells = [...Array(cellRow * cellCol)].map((_, index) => {
 
       cells[0].update();
       checkClear();
-
-      return true;
     },
   };
 });
+
+const resetGameStatus = () => {
+  gameStatus.startTime = performance.now();
+};
 
 const checkClear = () => {
   if (cells.every((cell) => cell.number === cell.x + cell.y * cellRow + 1)) {
